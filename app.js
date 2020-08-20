@@ -1,3 +1,4 @@
+//Import dependencies
 const minimist = require('minimist');
 const readline = require('readline')
 const axios = require('axios');
@@ -10,24 +11,24 @@ var SERVER_IP;
 var DOMAIN_IP;
 var attempt = 1;
 
+//readline for user input
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
 
+//minimist for parsing flags and arguments to run script
 const args = minimist(process.argv.slice(2));
 
-const defaultExit = () => {
-    console.log("Missing argument(s) to run program. Try -h for more information.")
-    process.exit(-1)
-}
-
 const parseArguments = () => {
-    if (args.h === true || args.help) {
-        console.log("No help here yet")
-    }
     if (!args.t || !args.d || !args.n || !args.a) {
-        defaultExit()
+        if(args.h) {
+            console.log("Flags required to run script: \n-t : time in seconds between checking records. Must be a value between 30 and 1800\n-d : domain name, eg. myserver.com\n-n : name of subdomain\n-a : API token for Digital Ocean")
+            process.exit(-1)
+        } else {
+            console.log("Missing argument(s) to run program. Try -h for more information.")
+            process.exit(-1)
+        }
     } else {
         TIMEOUT_INTERVAL = args.t * 1000;
         DOMAIN = args.d;

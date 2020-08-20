@@ -1,0 +1,24 @@
+{
+  "name": "dynamic-digitalocean-dns",
+  "version": "1.0.0",
+  "description": "Dynamically update subdomain records with Digital Oceans API",
+  "main": "app.js",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "minimist": "^1.2.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stianberghansen/dynamic-digital-ocean-nodejs.git"
+  },
+  "author": "Stian Berg Hansen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stianberghansen/dynamic-digital-ocean-nodejs/issues"
+  },
+  "homepage": "https://github.com/stianberghansen/dynamic-digital-ocean-nodejs#readme"
+}
