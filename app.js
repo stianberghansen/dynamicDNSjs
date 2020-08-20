@@ -64,7 +64,7 @@ const fetchRecords = () => {
     })
         .then((res) => {
             if (res.status === 200) {
-                console.log("Found domain records. Parsing data...\n");
+                console.log("Found domain records. Parsing data...");
                 parseDomainRecords(res.data.domain_records);
             }
         })
@@ -73,36 +73,27 @@ const fetchRecords = () => {
         })
 }
 
-const parseDomainRecords = (data) => {
-    const nameMatch = data.find(({ name }) => name === NAME);
-    console.log(nameMatch)
+const parseDomainRecords = (domainInfo) => {
+    const nameMatch = domainInfo.find(({ name }) => name === NAME);
     if (nameMatch != undefined && nameMatch.name === NAME) {
         console.log("Found a matching record. Name: " + nameMatch.name + "- Currently pointed at IP:" + nameMatch.data)
         updateDomainRecords(nameMatch.id, nameMatch.data);
     } else {
         console.log("No matching domain records.");
-        rl.question("Would you like to create a new domain record: yes / no (y/n)\n", (answer) => {
-            if (answer === "yes" || answer === "y") {
-                console.log("creating new record...");
-                createNewDomainRecord(data.data);
-            } else if (answer === "no" || answer === "n") {
-                console.log("Exiting program...");
-                rl.close();
-            }
-        })
+        userPromptNewDomain();
     }
 }
 
-const updateDomainRecords = (id, ip) => {
-    if (ip === SERVER_IP) {
+const updateDomainRecords = (recordID, recordIP) => {
+    if (recordIP === SERVER_IP) {
         console.log("Domain record IP and server IP match. Checking again in: " + TIMEOUT_INTERVAL/1000 + "s");
         setTimeout(fetchIP, TIMEOUT_INTERVAL);
     } else {
         console.log("New IP detected. Updating domain records...")
-        const url = 'https://api.digitalocean.com/v2/domains/' + DOMAIN + '/records/' + id
+        const url = 'https://api.digitalocean.com/v2/domains/' + DOMAIN + '/records/' + recordID
         axios({
             method: 'put',
-            url: 'https://api.digitalocean.com/v2/domains/' + DOMAIN + '/records/' + id,
+            url: 'https://api.digitalocean.com/v2/domains/' + DOMAIN + '/records/' + recordID,
             headers: {Authorization: `Bearer ${API_KEY}`},
             data: {"data": SERVER_IP }
         })
@@ -135,12 +126,12 @@ const createNewDomainRecord = () => {
         "data": SERVER_IP,
         "priority": null,
         "port": null,
-        "ttl": 30,
+        "ttl": 600,
         "weight": null,
         "flags": null,
         "tag": null
     }
-    console.log(newDomainRecord + "\n");
+    console.log("Sending domain info to DigitalOcean");
     axios({
         method: 'post',
         url: 'https://api.digitalocean.com/v2/domains/' + DOMAIN + '/records',
@@ -149,14 +140,27 @@ const createNewDomainRecord = () => {
     })
         .then(res => {
             if (res.status === 201) {
-                console.log("New domain record created.");
-                console.log(res.data);
+                console.log("New domain record created.\nWaiting specified timeout interval before checking server IP.");
                 setTimeout(fetchIP, TIMEOUT_INTERVAL)
             }
         })
         .catch(error => {
             console.log(error)
         })
+}
+
+const userPromptNewDomain = () => { 
+    rl.question("Would you like to create a new domain record: yes / no (y/n)\n", (answer) => {
+        if (answer === "yes" || answer === "y") {
+            console.log("creating new record...");
+            createNewDomainRecord();
+        } else if (answer === "no" || answer === "n") {
+            console.log("Exiting program...");
+            rl.close();
+        } else {
+            userPromptNewDomain();
+        }
+    })
 }
 
 parseArguments();
