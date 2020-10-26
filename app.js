@@ -2,14 +2,16 @@
 const minimist = require("minimist");
 const readline = require("readline");
 const axios = require("axios");
+const config = require("./config.json");
+const dotenv = require("dotenv").config();
+const mail = require("./mailer");
 
-var TIMEOUT_INTERVAL;
-var DOMAIN;
-var NAME;
-var API_KEY;
-var SERVER_IP;
-var DOMAIN_IP;
-var attempt = 1;
+let TIMEOUT_INTERVAL;
+let DOMAIN;
+let NAME;
+let API_KEY;
+let SERVER_IP;
+let attempt = 1;
 
 //readline for user input
 const rl = readline.createInterface({
@@ -26,7 +28,19 @@ const parseArguments = () => {
       console.log(
         "Flags required to run script: \n-t : time in seconds between checking records. Must be a value between 30 and 1800\n-d : domain name, eg. myserver.com\n-n : name of subdomain\n-a : API token for Digital Ocean"
       );
+      console.log(
+        "You can also pass the paramters in a config (JSON) file by using the flag -c followed by the filename"
+      );
       process.exit(-1);
+    } else if (args.c) {
+      const config = require("./" + `${args.c}`);
+
+      DOMAIN = config.DOMAIN;
+      NAME = config.NAME;
+      API_KEY = config.API_KEY;
+      TIMEOUT_INTERVAL = config.TIMEOUT_INTERVAL * 1000;
+
+      fetchIP();
     } else {
       console.log(
         "Missing argument(s) to run program. Try -h for more information."
@@ -52,13 +66,15 @@ const fetchIP = () => {
         console.log("Your public IP address is: " + SERVER_IP);
         fetchRecords();
       } else {
-        console.log("Error finding public IP address.");
+        console.log(
+          "Server response error. Can't find public IP address. Retrying..."
+        );
         process.exit(-1);
       }
     })
     .catch((error) => {
-      console.log(error);
-      setTimeout(fetchIP, TIMEOUT_INTERVAL + TIMEOUT_INTERVAL);
+      console.error(error);
+      retryRequest(error);
     });
 };
 
@@ -124,6 +140,7 @@ const updateDomainRecords = (recordID, recordIP) => {
       .then((res) => {
         if (res.status === 200) {
           console.log("Domain records updated.");
+          attempt = 1;
           setTimeout(fetchIP, TIMEOUT_INTERVAL);
         } else {
           console.log("Error updating domain records... Retrying" + attempt);
@@ -141,6 +158,7 @@ const updateDomainRecords = (recordID, recordIP) => {
           "Error updating domain records... See error response below:"
         );
         console.log(error);
+        setTimeout(fetchIP, TIMEOUT_INTERVAL);
       });
   }
 };
@@ -195,6 +213,16 @@ const userPromptNewDomain = () => {
       }
     }
   );
+};
+
+const retryRequest = (error) => {
+  if (attempt == 1 && config.EMAIL == true) {
+    mail.sendEmail(error.toString());
+    attempt++;
+    setTimeout(fetchIP, TIMEOUT_INTERVAL * 2);
+  } else {
+    setTimeout(fetchIP, TIMEOUT_INTERVAL * 2);
+  }
 };
 
 parseArguments();
