@@ -1,6 +1,6 @@
 # dynamicDNSjs
 
-DynamicDNSjs aims to provide an easy to use self-hosted Dynamic DNS service.
+DynamicDNSjs aims to provide an easy to use self-hosted Dynamic DNS service. dynamicDNSjs is currently only compatible with digital ocean but is in the process of adding custom platform configuration.
 
 ## pm2
 
