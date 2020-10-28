@@ -40,6 +40,7 @@ const parseArguments = () => {
       API_KEY = config.API_KEY;
       TIMEOUT_INTERVAL = config.TIMEOUT_INTERVAL * 1000;
 
+      mail.confirmEmailSystem();
       fetchIP();
     } else {
       console.log(
