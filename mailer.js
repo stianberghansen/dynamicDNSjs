@@ -34,7 +34,7 @@ const confirmEmailSystem = () => {
   let mailOptions = {
     from: process.env.EMAIL_USERNAME,
     to: process.env.SEND_TO,
-    subject: "Email initialization",
+    subject: "Email confirmation",
     text:
       "Your email has been connected to dynamicDNSjs.\n" +
       "The process is running on host: " +

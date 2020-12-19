@@ -1,7 +1,12 @@
 {
-  "DOMAIN": "example.com",
-  "NAME": "mysubdomain",
-  "API_KEY": "my api key",
-  "TIMEOUT_INTERVAL": 1000,
-  "EMAIL": false
+  "domains": [
+    {
+      "DOMAIN": "example.com",
+      "NAME": "subdomain",
+      "API_KEY": "api_key",
+      "VENDOR": "vendor",
+      "EMAIL": false
+    }
+  ],
+  "timeout": 1000
 }
