@@ -66,7 +66,7 @@ const startApplication = () => {
   let bool = domains
     .startProcess()
     .then((res) => {
-      setTimeout(startApplication, config.timeout * 10);
+      setTimeout(startApplication, config.timeout * 100);
     })
     .catch((err) => {
       console.log(err);
