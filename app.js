@@ -4,6 +4,7 @@ const axios = require("axios");
 const config = require("./config.json");
 const dotenv = require("dotenv").config();
 const mail = require("./mailer");
+const checkInternetConnection = require("./internetConnection.js");
 const domainRecords = require("./domainRecords");
 const { debugPort, domain } = require("process");
 
@@ -62,15 +63,18 @@ const parseArguments = () => {
   }
 };
 
-const startApplication = () => {
-  let bool = domains
-    .startProcess()
-    .then((res) => {
-      setTimeout(startApplication, config.timeout * 1000);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+const startApplication = async () => {
+  let internet = await checkInternetConnection();
+  if (internet) {
+    domains
+      .startProcess()
+      .then((res) => {
+        setTimeout(startApplication, config.timeout * 1000);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 };
 
 parseArguments();

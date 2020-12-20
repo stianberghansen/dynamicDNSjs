@@ -38,7 +38,7 @@ class domainRecords {
       const domains = this.getAllDomains();
       let promises = [];
       let records = [];
-      console.log("Fetching DNS host records... .... ....");
+      console.log("Looking for DNS records... .... ....");
       for (let i = 0; i < domains.length; i++) {
         promises.push(
           axios
@@ -64,7 +64,7 @@ class domainRecords {
         );
       }
       Promise.all(promises).then(() => {
-        console.log("Fetched domain records");
+        console.log("Domain records found");
         let parse = this.parseRecords().then(() => {
           this.matchPublicandDomainRecordIP().then(() => {
             resolve("true");
@@ -103,7 +103,7 @@ class domainRecords {
 
   startProcess() {
     return new Promise((resolve) => {
-      let res = this.fetchDomainRecords()
+      this.fetchDomainRecords()
         .then(() => {
           resolve("true");
         })
