@@ -6,8 +6,6 @@ const config = require("./config.json");
 let SERVER_IP;
 let attempt = 0;
 
-console.log(axios.defaults);
-
 class domainRecords {
   constructor() {
     this.domains = [];
@@ -16,7 +14,7 @@ class domainRecords {
   }
 
   newDomain(id, domain, name, apiKey) {
-    let d = new DomainRecord(id, domain, name, apiKey);
+    let d = new Record(id, domain, name, apiKey);
     this.domains.push(d);
     return d;
   }
@@ -121,7 +119,7 @@ class domainRecords {
   }
 }
 
-class DomainRecord {
+class Record {
   constructor(id, domain, name, apiKey, currentIP, recordID) {
     this.id = id;
     this.domain = domain;
@@ -154,11 +152,6 @@ class DomainRecord {
   updateDomainRecords(serverIP) {
     return new Promise((resolve) => {
       console.log("Updating domain records for '" + this.name + "'");
-      const url =
-        "https://api.digitalocean.com/v2/domains/" +
-        this.domain +
-        "/records/" +
-        this.recordID;
       axios({
         method: "put",
         url:
@@ -177,6 +170,7 @@ class DomainRecord {
           } else {
             console.log("Error updating domain records... Retrying" + attempt);
             attempt++;
+            this.updateDomainRecords();
             if (attempt < 5) {
             } else {
               console.log("Unable to update domain records.");
