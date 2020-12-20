@@ -45,7 +45,7 @@ const parseArguments = () => {
           config.domains[i].API_KEY
         );
       }
-      // mail.confirmEmailSystem();
+      mail.confirmEmailSystem();
       startApplication();
     } else {
       console.log(
