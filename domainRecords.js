@@ -164,7 +164,7 @@ class Record {
       })
         .then((res) => {
           if (res.status === 200) {
-            console.log("Domain records updated.");
+            console.log("Domain record updated.");
             attempt = 0;
             resolve("true");
           } else {

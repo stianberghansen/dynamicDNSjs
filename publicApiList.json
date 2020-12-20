@@ -1,3 +1,20 @@
 {
-  "urls": ["https://api.ipify.org?format=json"]
+  "urls": [
+    {
+      "url": "https://api.ipify.org?format=json",
+      "api_res": "res.data.ip"
+    },
+    {
+      "url": "https://api.bigdatacloud.net/data/client-ip",
+      "api_res": "res.data.ipString"
+    },
+    {
+      "url": "https://ip.seeip.org/jsonip?",
+      "api_res": "res.data.ip"
+    },
+    {
+      "url": "https://api.myip.com",
+      "api_res": "res.data.ip"
+    }
+  ]
 }
