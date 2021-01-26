@@ -3,13 +3,13 @@ const fetchPublicIP = require("./publicIPFetcher");
 const restartApplication = require("./app");
 const config = require("./config.json");
 
-let SERVER_IP;
 let attempt = 0;
 
-class domainRecords {
+class DomainRecords {
   constructor() {
     this.domains = [];
-    this.serverIP = String;
+    this.publicIP = String;
+    this.internalIP = String;
     this.rawRecords = new Array();
   }
 
@@ -23,14 +23,13 @@ class domainRecords {
     return this.domains;
   }
 
-  async fetchServerIP() {
+  async getPublicIP() {
     const ip = await fetchPublicIP();
-    this.serverIP = ip;
+    this.publicIP = ip;
   }
 
   setServerIP(ip) {
-    this.serverIP = ip;
-    SERVER_IP = ip;
+    this.publicIP = ip;
   }
 
   fetchDomainRecords() {
@@ -83,15 +82,15 @@ class domainRecords {
 
   matchPublicandDomainRecordIP() {
     return new Promise((resolve) => {
-      this.fetchServerIP().then(() => {
+      this.getPublicIP().then(() => {
         const domains = this.getAllDomains();
         for (let i = 0; i < domains.length; i++) {
-          if (this.serverIP === domains[i].currentIP) {
+          if (this.publicIP === domains[i].currentIP) {
             console.log(domains[i].name + " IP matches server's public IP");
             resolve("true");
           } else {
             let update = domains[i]
-              .updateDomainRecords(this.serverIP)
+              .updateDomainRecords(this.publicIP)
               .then(() => {
                 resolve("true");
               });
@@ -192,7 +191,7 @@ class Record {
     const newDomainRecord = {
       type: "A",
       name: NAME,
-      data: SERVER_IP,
+      data: this.serverIP,
       priority: null,
       port: null,
       ttl: 600,
@@ -224,4 +223,4 @@ class Record {
   }
 }
 
-module.exports = domainRecords;
+module.exports = DomainRecords;
