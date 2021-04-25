@@ -62,14 +62,22 @@ class DomainRecords {
             })
         );
       }
-      Promise.all(promises).then(() => {
-        console.log("Domain records found");
-        let parse = this.parseRecords().then(() => {
-          this.matchPublicandDomainRecordIP().then(() => {
-            resolve("true");
+      Promise.all(promises)
+        .then(() => {
+          console.log("Domain records found");
+          const parse = this.parseRecords().then(() => {
+            this.matchPublicandDomainRecordIP()
+              .then(() => {
+                resolve("true");
+              })
+              .catch((error) => {
+                console.log(error);
+              });
           });
+        })
+        .catch((error) => {
+          console.log(error);
         });
-      });
     });
   }
 
@@ -190,7 +198,7 @@ class Record {
   createNewDomainRecord() {
     const newDomainRecord = {
       type: "A",
-      name: NAME,
+      name: this.name,
       data: this.serverIP,
       priority: null,
       port: null,
@@ -202,11 +210,11 @@ class Record {
     console.log("Sending domain info to DigitalOcean");
     axios({
       method: "post",
-      url: "https://api.digitalocean.com/v2/domains/" + DOMAIN + "/records",
+      url: "https://api.digitalocean.com/v2/domains/" + this.domain + "/records",
       data: newDomainRecord,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${API_KEY}`,
+        Authorization: `Bearer ${this.apiKey}`,
       },
     })
       .then((res) => {
