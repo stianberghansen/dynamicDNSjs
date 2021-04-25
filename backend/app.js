@@ -78,7 +78,10 @@ const startApplication = async () => {
   if (localIP) {
     domains.localIP = localIP;
   }
-  let internet = await connections.checkInternetConnection();
+  let internet = await connections.checkInternetConnection().catch((err) => {
+    console.log(err);
+  });
+  // let internet = true;
   if (internet) {
     domains
       .startProcess()

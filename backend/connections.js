@@ -1,3 +1,4 @@
+const { rejects } = require("assert");
 const dns = require("dns");
 const { networkInterfaces } = require("os");
 
@@ -5,20 +6,32 @@ class Connections {
   /*
    ** Checks internet connection by attempting to resolve DNS
    */
+  constructor() {
+    this.attempt = 0;
+  }
+
   checkInternetConnection = () => {
-    return new Promise((resolve) => {
-      let attempt = 0;
+    return new Promise((resolve, reject) => {
       dns.resolve("www.google.com", (error, success) => {
         if (error) {
-          if (attempt > 4) {
-            Promise.reject(new Error("no internet")).then(() => {
-              console.log(error);
-              process.exit(-1);
-            });
+          if (this.attempt > 1) {
+            Promise.reject(new Error("no internet"))
+              .then(() => {
+                console.log(error);
+                process.exit(-1);
+              })
+              .catch((error) => {
+                console.log(error);
+              });
           } else {
-            setTimeout(checkInternetConnection, 60000);
+            console.log(
+              "No internet connection detected. Trying again in 1 minute."
+            );
+            this.attempt++;
+            console.log(this.attempt);
+            setTimeout(this.checkInternetConnection, 1000);
           }
-        } else {
+        } else if (success) {
           console.log("Internet connection detected.");
           resolve("true");
         }

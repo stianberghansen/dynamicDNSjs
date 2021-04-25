@@ -10,7 +10,6 @@ router.post("/add", (req, res) => {
   if (req.body.add) {
     console.log(req.body.add);
   }
-
   res.json("success");
 });
 
