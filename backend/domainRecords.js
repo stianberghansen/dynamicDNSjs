@@ -1,4 +1,4 @@
-const axios = require("axios");
+const axiosInstance = require("./axiosConfig");
 const fetchPublicIP = require("./publicIPFetcher");
 const restartApplication = require("./app");
 const config = require("./config.json");
@@ -40,22 +40,22 @@ class DomainRecords {
       console.log("Looking for DNS records... .... ....");
       for (let i = 0; i < domains.length; i++) {
         promises.push(
-          axios
+          axiosInstance
             .get(
               "https://api.digitalocean.com/v2/domains/" +
                 domains[i].domain +
-                "/records?cb=" +
+                "/records?timestamp=" +
                 `${new Date().getTime()}`,
               {
                 headers: {
-                  "Cache-Control": "no-cache",
                   Authorization: `Bearer ${domains[i].apiKey}`,
                 },
               }
             )
-            .then((response) => {
-              this.rawRecords.push(response.data);
-              records.push(response.data);
+            .then((res) => {
+              console.log(res.status)
+              this.rawRecords.push(res.data);
+              records.push(res.data);
             })
             .catch((error) => {
               console.error(error);
@@ -95,13 +95,13 @@ class DomainRecords {
         for (let i = 0; i < domains.length; i++) {
           if (this.publicIP === domains[i].currentIP) {
             console.log(domains[i].name + " IP matches server's public IP");
-            resolve("true");
+            resolve(true);
           } else {
-            let update = domains[i]
+            domains[i]
               .updateDomainRecords(this.publicIP)
               .then(() => {
-                resolve("true");
-              });
+                resolve(true);
+              })
           }
         }
       });
@@ -134,6 +134,7 @@ class Record {
     this.apiKey = apiKey;
     this.currentIP = currentIP;
     this.recordID = recordID;
+    this.connectionAttempt = 0;
   }
 
   parseDomainRecord(rawRecords) {
@@ -152,14 +153,16 @@ class Record {
       this.recordID = nameMatch.id;
     } else {
       console.log("No matching domain records.");
-      this.userPromptNewDomain();
+      //NOTE: userPromptNewDomain is not working yet. 
+      // this.userPromptNewDomain();
+      process.exit(-1);
     }
   }
 
   updateDomainRecords(serverIP) {
     return new Promise((resolve) => {
       console.log("Updating domain records for '" + this.name + "'");
-      axios({
+      axiosInstance({
         method: "put",
         url:
           "https://api.digitalocean.com/v2/domains/" +
@@ -172,13 +175,14 @@ class Record {
         .then((res) => {
           if (res.status === 200) {
             console.log("Domain record updated.");
-            attempt = 0;
+            this.connectionAttempt = 0;
             resolve("true");
           } else {
             console.log("Error updating domain records... Retrying" + attempt);
             attempt++;
             this.updateDomainRecords();
             if (attempt < 5) {
+              this.updateDomainRecords(serverIP)
             } else {
               console.log("Unable to update domain records.");
               process.exit(-1);
@@ -189,8 +193,8 @@ class Record {
           console.log(
             "Error updating domain records... See error response below:"
           );
-          console.log(error);
-          setTimeout(fetchIP, config.timeout);
+          console.error(error);
+          setTimeout(fetchPublicIP(), config.timeout);
         });
     });
   }
@@ -208,7 +212,7 @@ class Record {
       tag: null,
     };
     console.log("Sending domain info to DigitalOcean");
-    axios({
+    axiosInstance({
       method: "post",
       url: "https://api.digitalocean.com/v2/domains/" + this.domain + "/records",
       data: newDomainRecord,

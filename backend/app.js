@@ -14,7 +14,7 @@ const router = require("./router");
 const app = express();
 app.use("/domains", router);
 
-//readline for user input
+//readline to read user input
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -22,8 +22,6 @@ const rl = readline.createInterface({
 
 //minimist for parsing flags and arguments to run script
 const args = minimist(process.argv.slice(2));
-
-let attempt = 1;
 
 let domains = new DomainRecords();
 let connections = new Connection();
@@ -81,11 +79,10 @@ const startApplication = async () => {
   let internet = await connections.checkInternetConnection().catch((err) => {
     console.log(err);
   });
-  // let internet = true;
   if (internet) {
     domains
       .startProcess()
-      .then((res) => {
+      .then(() => {
         setTimeout(startApplication, config.timeout * 1000);
       })
       .catch((err) => {

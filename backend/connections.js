@@ -3,13 +3,14 @@ const dns = require("dns");
 const { networkInterfaces } = require("os");
 
 class Connections {
-  /*
-   ** Checks internet connection by attempting to resolve DNS
-   */
   constructor() {
     this.attempt = 0;
   }
 
+
+    /*
+   ** Checks internet connection by attempting to resolve DNS
+   */
   checkInternetConnection = () => {
     return new Promise((resolve, reject) => {
       dns.resolve("www.google.com", (error, success) => {
@@ -39,13 +40,13 @@ class Connections {
     });
   };
 
+
   /*
    ** Gets local IP address
    */
   fetchLocalIp = () => {
     return new Promise((localIP) => {
       const nets = networkInterfaces();
-      const results = {};
       for (const name of Object.keys(nets)) {
         for (const net of nets[name]) {
           if (net.family === "IPv4" && !net.internal) {

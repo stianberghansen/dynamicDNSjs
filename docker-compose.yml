@@ -1,0 +1,15 @@
+version: "3.2"
+
+services:
+    backend:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        ports:
+            - 80:80
+            - 443:443
+        networks:
+            - dynamic-dns-networks
+
+networks:
+    dynamic-dns-networks:
