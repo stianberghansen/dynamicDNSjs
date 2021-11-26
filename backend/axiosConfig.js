@@ -3,6 +3,7 @@ const axios = require("axios");
 axios.defaults.timeout = 5000;
 axios.defaults.headers = {
     'Cache-Control': ['no-cache', 'no-store', 'must-revalidate'],
+    'Pragma': 'no-cache',
     'Expires': 0,
     'Access-Control-Max-Age': 1
 }

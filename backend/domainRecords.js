@@ -3,6 +3,8 @@ const fetchPublicIP = require("./publicIPFetcher");
 const restartApplication = require("./app");
 const config = require("./config.json");
 
+const BASEURL_DO = "https://api.digitalocean.com/v2/domains/"
+
 let attempt = 0;
 
 class DomainRecords {
@@ -42,7 +44,7 @@ class DomainRecords {
         promises.push(
           axiosInstance
             .get(
-              "https://api.digitalocean.com/v2/domains/" +
+              BASEURL_DO +
                 domains[i].domain +
                 "/records?timestamp=" +
                 `${new Date().getTime()}`,
@@ -165,7 +167,7 @@ class Record {
       axiosInstance({
         method: "put",
         url:
-          "https://api.digitalocean.com/v2/domains/" +
+          BASEURL_DO +
           this.domain +
           "/records/" +
           this.recordID,
@@ -214,7 +216,7 @@ class Record {
     console.log("Sending domain info to DigitalOcean");
     axiosInstance({
       method: "post",
-      url: "https://api.digitalocean.com/v2/domains/" + this.domain + "/records",
+      url: BASEURL_DO + this.domain + "/records",
       data: newDomainRecord,
       headers: {
         "Content-Type": "application/json",
